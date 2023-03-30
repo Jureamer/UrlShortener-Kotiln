@@ -4,9 +4,11 @@ import com.example.urlshortener.entity.Url
 import com.example.urlshortener.repository.CompRepository
 import org.springframework.core.env.Environment
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalDateTime.parse
 import java.time.format.DateTimeFormatter
+import javax.swing.text.DateFormatter
 
 
 @Service
@@ -24,11 +26,13 @@ class CompService (
         println("checkValidation")
     }
 
-    private fun getOneMonthAfterBasedCurrentDate(): LocalDateTime = LocalDateTime.now().plusMonths(1)
+    private fun getOneMonthAfterBasedCurrentDate(): LocalDate = LocalDate.now().plusMonths(1)
 
     fun getRedirectUrl(shortUrl: String): String? {
         try {
             val result: Url? = compRepository.findByShortUrl(shortUrl)
+
+            println("조회한 shortUrl: " + result)
             val oneMonthAfter = getOneMonthAfterBasedCurrentDate()
             // 조회 할 경우 한달 뒤로 업데이트
             result?.let {
@@ -45,21 +49,14 @@ class CompService (
         }
     }
 
-    private fun convertYYYYMMDD(date: String): LocalDateTime {
-        return parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-    }
-
     private fun makeResponseForm(response: Url): Url? {
         //Todo 깊은 복사 필요
         return try {
             response.shortUrl = attachServerUrl(response.shortUrl)
-            response.expirationAt = convertYYYYMMDD(response.expirationAt.toString())
             response
         } catch (e: Exception) {
             println("Error $e")
-            response.shortUrl = ""
-            response.expirationAt = LocalDateTime.now()
-            response
+            null
         }
     }
 
@@ -82,13 +79,14 @@ class CompService (
     }
 
     private fun generateShortUrl(uriLength: Int): String {
-        var randomIds = getRandomId(uriLength)
+        var randomId = getRandomId(uriLength)
         val isExist: Boolean = compRepository.existsById(1)
 
+        println("randomId::::::: $randomId")
         isExist?.let {
-            randomIds = getRandomId(uriLength)
+            randomId = getRandomId(uriLength)
         }
-        return randomIds
+        return randomId
     }
 
     private fun getRandomId(uriLength: Int): String {

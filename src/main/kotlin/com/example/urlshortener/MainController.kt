@@ -1,7 +1,7 @@
 package com.example.urlshortener
 
 import com.example.urlshortener.service.CompService
-import com.fasterxml.jackson.annotation.JsonView
+import jakarta.validation.constraints.Size
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -14,7 +14,8 @@ class MainController(
     private val compService: CompService
 ) {
     @GetMapping("/{url}")
-    fun getRedirectUrl(@PathVariable(name="url") shortUrl: String): ResponseEntity<Any> {
+    fun getRedirectUrl(
+        @PathVariable(name="url") shortUrl: String): ResponseEntity<Any> {
         val shortedUrl = compService.getRedirectUrl(shortUrl)
         return if(shortedUrl != null) {
             val redirectUri = URI(shortedUrl)

@@ -1,6 +1,7 @@
 package com.example.urlshortener.controller
 
 import com.example.urlshortener.controller.model.CompRequestModel
+import com.example.urlshortener.controller.model.CompResponseModel
 import com.example.urlshortener.entity.Url
 import com.example.urlshortener.service.CompService
 import jakarta.validation.Valid
@@ -21,10 +22,9 @@ class CompController (
         @URL
         compRequestModel: CompRequestModel
     ): Any? {
-        val shortUrl: Url? = compService.shortenUrl(compRequestModel.url)
-        print("shortUrl $shortUrl")
-        return shortUrl?.let {
-            ResponseEntity.status(200).body("URL이 정상적으로 압축되었습니다")
-        } ?: ResponseEntity.status(400).body("URL이 정상적으로 압축되었습니다")
+        val response: Url? = compService.shortenUrl(compRequestModel.url)
+        return response?.let {
+            ResponseEntity.status(200).body(CompResponseModel(200, "URL이 정상적으로 압축되었습니다", response))
+        } ?: ResponseEntity.status(400).body(CompResponseModel(400, "유효한 URL이 아닙니다.", null))
     }
 }
